@@ -1,5 +1,5 @@
 #! python3
-'''
+"""
 This script updates or generates entirely a VHDL file
 containing information as constants about when the build
 was executed.  This should be called as a precursor to
@@ -11,7 +11,7 @@ set_global_assignment -name PRE_FLOW_SCRIPT_FILE
 The program will work with no command line arguments and the
 default value is specified in PKG_FILENAME global.  However the
 filename may be overridden using a commandline parameter '-o'.
-'''
+"""
 
 import os
 import time
@@ -19,69 +19,70 @@ import re
 import tempfile
 import argparse
 
-PKG_FILENAME = 'system_build_info_pkg.vhd'
+PKG_FILENAME = "system_build_info_pkg.vhd"
 
 
 def scanline(line):
-    '''Scans a line for a number of predefined
-    text strings and replaces if found.'''
+    """Scans a line for a number of predefined
+    text strings and replaces if found."""
     # Acquire the current time and setup some variables with
     # strings of the contents.
-    longform_date = time.strftime('%c', time.localtime())
-    year = time.strftime('%Y', time.localtime())
-    month = time.strftime('%m', time.localtime())
-    day = time.strftime('%d', time.localtime())
-    hour = time.strftime('%H', time.localtime())
-    minute = time.strftime('%M', time.localtime())
-    second = time.strftime('%S', time.localtime())
+    longform_date = time.strftime("%c", time.localtime())
+    year = time.strftime("%Y", time.localtime())
+    month = time.strftime("%m", time.localtime())
+    day = time.strftime("%d", time.localtime())
+    hour = time.strftime("%H", time.localtime())
+    minute = time.strftime("%M", time.localtime())
+    second = time.strftime("%S", time.localtime())
 
     # Search for the following patterns and recreate the line if found.
-    if re.search(r'-- Last update :', line):
-        line = '-- Last update : {}\n'.format(longform_date)
+    if re.search(r"-- Last update :", line):
+        line = "-- Last update : {}\n".format(longform_date)
 
     # Note, searching for the constant declaration line so users can
     # add vector conversions of these numbers safely without the lines
     # getting eaten.
-    if re.search(r'constant C_BUILD_TIME_YEAR', line):
-        line = '\tconstant C_BUILD_TIME_YEAR   : integer := {};\n'.format(year)
+    if re.search(r"constant C_BUILD_TIME_YEAR", line):
+        line = "\tconstant C_BUILD_TIME_YEAR   : integer := {};\n".format(year)
 
-    if re.search(r'constant C_BUILD_TIME_MONTH', line):
-        line = '\tconstant C_BUILD_TIME_MONTH  : integer := {};\n'.format(month)
+    if re.search(r"constant C_BUILD_TIME_MONTH", line):
+        line = "\tconstant C_BUILD_TIME_MONTH  : integer := {};\n".format(month)
 
-    if re.search(r'constant C_BUILD_TIME_DAY', line):
-        line = '\tconstant C_BUILD_TIME_DAY    : integer := {};\n'.format(day)
+    if re.search(r"constant C_BUILD_TIME_DAY", line):
+        line = "\tconstant C_BUILD_TIME_DAY    : integer := {};\n".format(day)
 
-    if re.search(r'constant C_BUILD_TIME_HOUR', line):
-        line = '\tconstant C_BUILD_TIME_HOUR   : integer := {};\n'.format(hour)
+    if re.search(r"constant C_BUILD_TIME_HOUR", line):
+        line = "\tconstant C_BUILD_TIME_HOUR   : integer := {};\n".format(hour)
 
-    if re.search(r'constant C_BUILD_TIME_MINUTE', line):
-        line = '\tconstant C_BUILD_TIME_MINUTE : integer := {};\n'.format(minute)
+    if re.search(r"constant C_BUILD_TIME_MINUTE", line):
+        line = "\tconstant C_BUILD_TIME_MINUTE : integer := {};\n".format(minute)
 
-    if re.search(r'constant C_BUILD_TIME_SECOND', line):
-        line = '\tconstant C_BUILD_TIME_SECOND : integer := {};\n'.format(second)
+    if re.search(r"constant C_BUILD_TIME_SECOND", line):
+        line = "\tconstant C_BUILD_TIME_SECOND : integer := {};\n".format(second)
 
     # This one is special as it searches for the constant, then increments
     # the number.
-    if re.search(r'constant C_BUILD_NUMBER\b', line):
-        s = re.search(r':= ([0-9]+);', line)
+    if re.search(r"constant C_BUILD_NUMBER\b", line):
+        s = re.search(r":= ([0-9]+);", line)
         build_num = int(s.group(1)) + 1
-        print('Build number: {}'.format(build_num))
-        line = '\tconstant C_BUILD_NUMBER : integer := {};\n'.format(build_num)
+        print("Build number: {}".format(build_num))
+        line = "\tconstant C_BUILD_NUMBER : integer := {};\n".format(build_num)
 
     return line
 
+
 def update_file(filename):
-    '''
+    """
     Opens the file and scans for fields, replacing them
     with the appropriate time information.
-    '''
-    longform_date = time.strftime('%c', time.localtime())
-    print('=================================================================')
-    print('Updating system build package with time: {}'.format(longform_date))
+    """
+    longform_date = time.strftime("%c", time.localtime())
+    print("=================================================================")
+    print("Updating system build package with time: {}".format(longform_date))
     # Open the original, and a temp file.  Not using contexts
     # because I want to control the file handling.
-    f_in = open(filename, 'r')
-    f_temp = tempfile.TemporaryFile(mode='r+')
+    f_in = open(filename, "r")
+    f_temp = tempfile.TemporaryFile(mode="r+")
 
     # Examine each line and write a potentially modified
     # version to the tempfile.
@@ -93,7 +94,7 @@ def update_file(filename):
     # write (overwriting.).  Rewind temp file.
     f_temp.seek(0)
     f_in.close()
-    f_out = open(filename, 'w')
+    f_out = open(filename, "w")
 
     # Rewrite the file from temporary contents.
     for line in f_temp:
@@ -102,17 +103,18 @@ def update_file(filename):
     # Close all files.  Temp file will be destroyed.
     f_out.close()
     f_temp.close()
-    print('Update complete')
-    print('=================================================================')
+    print("Update complete")
+    print("=================================================================")
+
 
 def create_file(filename):
-    '''
+    """
     Creates a file with the contents desired.  Uses a temp
     file and then scans it and writes it back into the real file
     because scanline was intended to work on a line by line basis.
-    '''
+    """
     # This is the file contents to be written.
-    package_str = '''-------------------------------------------------------------------------------
+    package_str = """-------------------------------------------------------------------------------
 -- Title       : System Build Information Package
 -------------------------------------------------------------------------------
 -- File        : {}
@@ -185,19 +187,21 @@ package system_build_info is
 \t----------------------------------------------------------------------
 
 end package system_build_info;
-'''.format(filename)
+""".format(
+        filename
+    )
 
-    longform_date = time.strftime('%c', time.localtime())
-    print('=================================================================')
-    print('Creating system build package with time: {}'.format(longform_date))
+    longform_date = time.strftime("%c", time.localtime())
+    print("=================================================================")
+    print("Creating system build package with time: {}".format(longform_date))
 
-    f_temp = tempfile.TemporaryFile(mode='r+')
+    f_temp = tempfile.TemporaryFile(mode="r+")
     f_temp.write(package_str)
 
     # Close the read context on the file, and reopen as
     # write (overwriting.).  Rewind temp file.
     f_temp.seek(0)
-    f_out = open(filename, 'w')
+    f_out = open(filename, "w")
 
     # Rewrite the file from temporary contents.
     for line in f_temp:
@@ -207,26 +211,29 @@ end package system_build_info;
     # Close all files.  Temp file will be destroyed.
     f_out.close()
     f_temp.close()
-    print('Creation complete')
-    print('=================================================================')
+    print("Creation complete")
+    print("=================================================================")
 
 
 def main():
-    '''
+    """
     Main program.  Decides if the file exists already and if
     it needs to create the file entirely or just update fields
-    '''
+    """
     # Setup ArgParse class
     parser = argparse.ArgumentParser(
-        prog='update_build_time',
-        description='''Creates or updates a VHDL package file
+        prog="update_build_time",
+        description="""Creates or updates a VHDL package file
         that contains constants for date and time related to
         when this program was run.  update_build_time.py is
-        intended to be run just prior to building the design.''')
+        intended to be run just prior to building the design.""",
+    )
     parser.add_argument(
-        '-o', '--output_file',
-        help='VHDL package output filename.  Default: {}'.format(PKG_FILENAME),
-        default=PKG_FILENAME)
+        "-o",
+        "--output_file",
+        help="VHDL package output filename.  Default: {}".format(PKG_FILENAME),
+        default=PKG_FILENAME,
+    )
     args = parser.parse_args()
 
     # First check to see if the file exists.  Assuming that
@@ -237,5 +244,6 @@ def main():
     else:
         create_file(args.output_file)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
