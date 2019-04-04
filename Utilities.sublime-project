@@ -1,0 +1,80 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	// REMEMBER TO PUT A COMMA ON THE FOLDERS ENTRY ABOVE!!
+	// The settings will degrade to the package default values, and user
+	// overridden default values.  Edit as needed.
+	"settings":
+	{
+		"vhdl-line-length"  : 80,
+		"vhdl-company"      : "Self",
+		"vhdl-project-name" : "Utilities",
+		"vhdl-platform"     : "Generic",
+		"vhdl-standard"     : "VHDL-2008",
+		"vhdl-use-copyright-block" : false,
+		"vhdl-use-revision-block" : false,
+		"vhdl-copyright-block" : [
+			"-- Copyright (c) ${YEAR} ${COMPANY}",
+			"-- ",
+			"-- Project Specific Copyright / Export Control Boilerplate",
+			"${LINE}"
+		],
+		"vhdl-revision-block" : [
+			"-- Revisions: <project specific revision control notice or",
+			"-- individual revision entries if desired.>",
+			"${LINE}"
+		]
+	},
+	"build_systems":
+	[
+		{
+			// Riviera PRO evocation
+			"name": "Riviera PRO VHDL-2008",
+			//"working_dir": "d:/projects_git/onx10k_fpga/sim",
+			"working_dir": "$project_path/sim",
+			// Sample parameters for evocation.  Customize for project.
+			"shell_cmd": "vcom -dbg -2008 -work util_work \"$file\"",
+			// File expression pulls out the file.
+			//"cmd": ["vcom", "-dbg -2008 -work rp_onx10k_work", "$file"],
+			"file_regex": "^COMP96 File: (.*)",
+			// Line expression pulls out the message, column, and row and skips the file.
+			"line_regex": "^COMP96 ERROR (?=\\w*: \\\".*\\\" (\\d*) (\\d*))(\\w*: \\\".*?\\.\\\")",
+			"selector": "source.vhdl"
+		},
+		{
+			// Modelsim evocation and pattern matching.
+			"name": "Modelsim/Questasim VHDL-2008",
+			"working_dir": "/sim",
+			// Sample parameters for evocation.  Customize for project.
+			"shell_cmd": "vcom -2008 -time -check_synthesis -pedanticerrors -work work $file",
+			// Capture group MUST be in order: filename / line / column / message
+			// Column is a dummy capture.
+			"file_regex": "^\\*\\* .*?: (.*?)\\(([0-9]+)\\)(): (.*)",
+			"selector": "source.vhdl"
+		},
+		{
+			// Modelsim evocation and pattern matching.
+			"name": "Modelsim/Questasim VHDL-1993",
+			"working_dir": "/sim",
+			// Sample parameters for evocation.  Customize for project.
+			"shell_cmd": "vcom -93 -time -check_synthesis -pedanticerrors -work work $file",
+			// Capture group MUST be in order: filename / line / column / message
+			// Column is a dummy capture.
+			"file_regex": "^\\*\\* .*?: (.*?)\\(([0-9]+)\\)(): (.*)",
+			"selector": "source.vhdl"
+		},
+		{
+			// Makefile evocation, Modelsim pattern matching.
+			"name": "Make",
+			"shell_cmd": "make",
+			// Capture group MUST be in order: filename / line / column / message
+			// Column is a dummy capture.
+			"file_regex": "^\\*\\* .*?: (.*?)\\(([0-9]+)\\)(): (.*)",
+			"selector": "source.vhdl"
+		}
+	]
+}
