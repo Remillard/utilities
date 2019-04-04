@@ -1,0 +1,1 @@
+ -o D:/projects_git/utilities/sim/compile -lc D:/projects_git/utilities/sim/library.cfg -fl D:/projects_git/utilities/sim/library.cfg -pli D:/aldec/Riviera-PRO-2018.10-x64/bin/systf.dll -refresh util_work

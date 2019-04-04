@@ -2,3 +2,11 @@
 SDCard Data Reader/__pycache__/
 
 Utilities\.sublime-workspace
+
+sim/dataset\.asdbw/
+
+sim/dataset\.asdb
+
+sim/dataset\.tmp
+
+sim/UTIL_WORK/

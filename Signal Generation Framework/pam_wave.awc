@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="awc" version="2">
+	<waveform>
+		<datasets>
+			<dataset alias="sim" file="../sim/dataset.asdb" id="0" uniqueid="1554415344"/>
+		</datasets>
+		<browser type="events"/>
+		<view active="true">
+			<cursors>
+				<cursor name="Default cursor" id="-1" time="0fs+0" lock="0" tip="1"/>
+				<active name="Default cursor" time="0fs+0"/>
+			</cursors>
+			<signalspart>
+				<height value="100"/>
+				<viewmode value="analog"/>
+				<wave_coloring value="1"/>
+				<analogbottom value="-1"/>
+				<analogtop value="1"/>
+				<analogpointsconnection value="linear"/>
+				<analogantialiasing value="1"/>
+				<signal name="/generic_siggen/cw" aliasid="0"/>
+				<analogbottom value="0"/>
+				<signal name="/generic_siggen/m" aliasid="0"/>
+				<analogbottom value="-1"/>
+				<signal name="/generic_siggen/signal_out" aliasid="0"/>
+			</signalspart>
+			<firstvisiblesignal number="0"/>
+			<timesynchronization value="1"/>
+			<cursorssynchronization value="1"/>
+			<time beginvisible="0fs" endvisible="0fs"/>
+		</view>
+		<bookmarks/>
+		<time beginvisible="0fs" endvisible="50us"/>
+		<timeunit name="auto"/>
+		<grid type="autogrid"/>
+		<cursors>
+			<cursor name="Default cursor" id="-1" time="20000500ps" lock="0" tip="1">
+				<cursor name="Cursor 1" id="-1" time="50us+0" lock="0" tip="1"/>
+			</cursor>
+			<active name="Cursor 1" time="50us+0"/>
+		</cursors>
+		<hierarchy_depth value="0"/>
+	</waveform>
+</document>

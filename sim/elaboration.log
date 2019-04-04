@@ -1,0 +1,35 @@
+Riviera-PRO 2018.10.137.7135(Windows64) 2019-04-04 17:02:24
+
+Elaboration top modules:
+Architecture                  behavioral(generic_siggen)
+
+
+-------------------------------------------------------------------------------------------------
+Entity         | Architecture | Library   | Info | Compiler Version        | Compilation Options
+-------------------------------------------------------------------------------------------------
+generic_siggen | behavioral   | util_work |      | 2018.10.137 (Windows64) | -dbg -2008
+-------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------
+VHDL Package                  | Library   | Info | Compiler Version        | Compilation Options
+-------------------------------------------------------------------------------------------------
+standard                      | std       |      |                         | <unavailable>
+ENV                           | std       |      |                         | <unavailable>
+MATH_REAL                     | ieee      |      |                         | <unavailable>
+TEXTIO                        | std       |      |                         | <unavailable>
+std_logic_1164                | ieee      |      |                         | <unavailable>
+NUMERIC_STD                   | ieee      |      |                         | <unavailable>
+STD_LOGIC_TEXTIO              | ieee      |      |                         | <unavailable>
+-------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------
+Library                       | Comment
+-------------------------------------------------------------------------------------------------
+ieee                          | Standard IEEE packages library
+std                           | Standard VHDL library
+util_work                     | None
+-------------------------------------------------------------------------------------------------
+
+
+Simulation Options: asim -t 1ps -dataset {D:/projects_git/utilities/sim} -datasetname {sim} util_work.generic_siggen
+
