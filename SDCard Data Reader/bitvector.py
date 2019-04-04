@@ -69,6 +69,7 @@ class BitVector:
         """Returns the vector length as an integer."""
         return len(self._vlist)
 
+    @property
     def bit(self, start):
         """Returns a single bit value with index similar to HDL languages,
         paying attention to the slice direction."""
