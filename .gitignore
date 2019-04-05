@@ -10,3 +10,5 @@ sim/dataset\.asdb
 sim/dataset\.tmp
 
 sim/UTIL_WORK/
+
+sim/elaboration\.log

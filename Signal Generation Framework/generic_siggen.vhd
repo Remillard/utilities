@@ -6,7 +6,7 @@
 -- Author      : Mark Norton <mark.norton@viavisolutions.com>
 -- Company     : Self
 -- Created     : Thu Apr  4 13:13:52 2019
--- Last update : Thu Apr  4 17:02:15 2019
+-- Last update : Fri Apr  5 08:11:07 2019
 -- Platform    : Generic
 -- Standard    : VHDL-2008
 --------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ architecture behavioral of generic_siggen is
 	-- smaller the time step, the closer to real time we can achieve, however
 	-- the longer simulation will take.  Simulation resolution must be set to
 	-- the step size or smaller.
-	constant C_STEP_PS   : real := 500.0;
+	constant C_STEP_PS   : real := 10.0;
 	constant C_TIME_STEP : time := C_STEP_PS * 1.0e-12 * (1 SEC);
 
 	-- Simulation duration set here.  The signal generation block will be the
@@ -131,7 +131,7 @@ begin
 	----------------------------------------------------------------------------
 	SIGNAL_OUTPUT : process
 	begin
-		signal_out <= m * cw;
+		signal_out <= m * cw + C_CW_OFFSET;
 		wait for C_TIME_STEP;
 	end process SIGNAL_OUTPUT;
 
@@ -139,7 +139,7 @@ begin
 	-- User Generated Signals
 	----------------------------------------------------------------------------
 	-- Carrier Wave
-	cw <= C_CW_AMP * sin(2.0*math_pi*C_CW_FREQ*t + phi) + C_CW_OFFSET;
+	cw <= C_CW_AMP * sin(2.0*math_pi*C_CW_FREQ*t + phi);
 
 	-- PAM Signal -- Need a better abstraction model
 	MODE_C : process (all)

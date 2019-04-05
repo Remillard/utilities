@@ -2,7 +2,7 @@
 <document type="awc" version="2">
 	<waveform>
 		<datasets>
-			<dataset alias="sim" file="../sim/dataset.asdb" id="0" uniqueid="1554415344"/>
+			<dataset alias="sim" file="../sim/dataset.asdb" id="0" uniqueid="1554469309"/>
 		</datasets>
 		<browser type="events"/>
 		<view active="true">
@@ -16,7 +16,7 @@
 				<wave_coloring value="1"/>
 				<analogbottom value="-1"/>
 				<analogtop value="1"/>
-				<analogpointsconnection value="linear"/>
+				<analogtoolbarvisible value="0"/>
 				<analogantialiasing value="1"/>
 				<signal name="/generic_siggen/cw" aliasid="0"/>
 				<analogbottom value="0"/>
@@ -30,7 +30,7 @@
 			<time beginvisible="0fs" endvisible="0fs"/>
 		</view>
 		<bookmarks/>
-		<time beginvisible="0fs" endvisible="50us"/>
+		<time beginvisible="19973ns" endvisible="20125800ps"/>
 		<timeunit name="auto"/>
 		<grid type="autogrid"/>
 		<cursors>
