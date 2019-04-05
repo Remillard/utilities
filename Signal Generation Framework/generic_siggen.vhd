@@ -6,7 +6,7 @@
 -- Author      : Mark Norton <mark.norton@viavisolutions.com>
 -- Company     : Self
 -- Created     : Thu Apr  4 13:13:52 2019
--- Last update : Fri Apr  5 08:11:07 2019
+-- Last update : Fri Apr  5 14:25:05 2019
 -- Platform    : Generic
 -- Standard    : VHDL-2008
 --------------------------------------------------------------------------------
@@ -24,6 +24,8 @@ use ieee.numeric_std.all;
 use ieee.math_real.all;
 use std.textio.all;
 use ieee.std_logic_textio.all;
+use work.signals_pkg.all;
+use work.signal_defs_pkg.all;
 
 entity generic_siggen is
 	port (
@@ -66,45 +68,6 @@ architecture behavioral of generic_siggen is
 	constant C_MAX_VAL : real := 1.0;
 	signal m           : real := 0.0;
 
-	constant C_START    : real := 0.0;
-	constant C_P1_ON_0  : real := C_START + 20.0e-6;
-	constant C_P1_ON_1  : real := C_P1_ON_0 + 0.075e-6;
-	constant C_P1_OFF_0 : real := C_P1_ON_1 + 0.8e-6;
-	constant C_P1_OFF_1 : real := C_P1_OFF_0 + 0.075e-6;
-	constant C_P3_ON_0  : real := C_P1_ON_0 + 21.0e-6;
-	constant C_P3_ON_1  : real := C_P3_ON_0 + 0.075e-6;
-	constant C_P3_OFF_0 : real := C_P3_ON_1 + 0.8e-6;
-	constant C_P3_OFF_1 : real := C_P3_OFF_0 + 0.075e-6;
-	constant C_P4_ON_0  : real := C_P3_ON_0 + 2.0e-6;
-	constant C_P4_ON_1  : real := C_P4_ON_0 + 0.075e-6;
-	constant C_P4_OFF_0 : real := C_P4_ON_1 + 1.6e-6;
-	constant C_P4_OFF_1 : real := C_P4_OFF_0 + 0.075e-6;
-
-	----------------------------------------------------------------------------
-	-- Helper Functions
-	----------------------------------------------------------------------------
-	-- Used for piecewise linear functions.  Must specify the endpoints of the
-	-- line.  The 1 parameter is the start, 2 is the end.  Input time must be
-	-- within these two points
-	function line
-		(
-			v1, t1, v2, t2 : real;
-			t              : real
-		) return real is
-		variable slope : real;
-	begin
-		assert (t2 > t1)
-			report "%%%% line function: time parameters non-increasing" severity ERROR;
-		assert (t1 <= t and t <= t2)
-			report "%%%% line function: time input " &
-			real'image(t) &
-			"not within point boundaries from " &
-			real'image(t1) & " to " & real'image(t2)
-			severity ERROR;
-		slope := (v2 - v1) / (t2 - t1);
-		return slope * (t - t1) + v1;
-	end function line;
-
 begin
 	----------------------------------------------------------------------------
 	-- Simulation Control
@@ -126,7 +89,7 @@ begin
 	end process TIME_CONTROL;
 
 	----------------------------------------------------------------------------
-	-- Signal Output -- Replace the signal_out line with the result of the
+	-- Signal Output -- Replace the signal_out linear with the result of the
 	-- generated expression.
 	----------------------------------------------------------------------------
 	SIGNAL_OUTPUT : process
@@ -139,40 +102,9 @@ begin
 	-- User Generated Signals
 	----------------------------------------------------------------------------
 	-- Carrier Wave
-	cw <= C_CW_AMP * sin(2.0*math_pi*C_CW_FREQ*t + phi);
+	cw <= sinusoid(C_CW_AMP, C_CW_FREQ, 0.0, t);
 
 	-- PAM Signal -- Need a better abstraction model
-	MODE_C : process (all)
-	begin
-		if (t >= C_START and t < C_P1_ON_0) then
-			m <= C_OFF_VAL;
-		elsif (t >= C_P1_ON_0 and t < C_P1_ON_1) then
-			m <= line(C_OFF_VAL, C_P1_ON_0, C_MAX_VAL, C_P1_ON_1, t);
-		elsif (t >= C_P1_ON_1 and t < C_P1_OFF_0) then
-			m <= C_MAX_VAL;
-		elsif (t >= C_P1_OFF_0 and t < C_P1_OFF_1) then
-			m <= line(C_MAX_VAL, C_P1_OFF_0, C_OFF_VAL, C_P1_OFF_1, t);
-		elsif (t >= C_P1_OFF_1 and t < C_P3_ON_0) then
-			m <= C_OFF_VAL;
-		elsif (t >= C_P3_ON_0 and t < C_P3_ON_1) then
-			m <= line(C_OFF_VAL, C_P3_ON_0, C_MAX_VAL, C_P3_ON_1, t);
-		elsif (t >= C_P3_ON_1 and t < C_P3_OFF_0) then
-			m <= C_MAX_VAL;
-		elsif (t >= C_P3_OFF_0 and t < C_P3_OFF_1) then
-			m <= line(C_MAX_VAL, C_P3_OFF_0, C_OFF_VAL, C_P3_OFF_1, t);
-		elsif (t >= C_P3_OFF_1 and t < C_P4_ON_0) then
-			m <= C_OFF_VAL;
-		elsif (t >= C_P4_ON_0 and t < C_P4_ON_1) then
-			m <= line(C_OFF_VAL, C_P4_ON_0, C_MAX_VAL, C_P4_ON_1, t);
-		elsif (t >= C_P4_ON_1 and t < C_P4_OFF_0) then
-			m <= C_MAX_VAL;
-		elsif (t >= C_P4_OFF_0 and t < C_P4_OFF_1) then
-			m <= line(C_MAX_VAL, C_P4_OFF_0, C_OFF_VAL, C_P4_OFF_1, t);
-		elsif (t >= C_P4_OFF_1) then
-			m <= C_OFF_VAL;
-		else
-			m <= 0.0;
-		end if;
-	end process MODE_C;
+	m <= piecewise(C_MODE_A_PATTERN, t);
 
 end architecture behavioral;
