@@ -6,7 +6,7 @@
 -- Author      : Mark Norton <mark.norton@viavisolutions.com>
 -- Company     : Self
 -- Created     : Thu Apr  4 13:13:52 2019
--- Last update : Fri Apr  5 14:25:05 2019
+-- Last update : Fri Apr  5 14:48:58 2019
 -- Platform    : Generic
 -- Standard    : VHDL-2008
 --------------------------------------------------------------------------------
@@ -104,7 +104,9 @@ begin
 	-- Carrier Wave
 	cw <= sinusoid(C_CW_AMP, C_CW_FREQ, 0.0, t);
 
-	-- PAM Signal -- Need a better abstraction model
-	m <= piecewise(C_MODE_A_PATTERN, t);
+	-- Modulation signal generation
+	--m <= piecewise(C_MODE_A_PATTERN, t);
+	--m <= piecewise(C_MODE_C_PATTERN, t);
+	m <= piecewise(C_DME_X_PATTERN, t);
 
 end architecture behavioral;

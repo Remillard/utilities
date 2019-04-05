@@ -6,7 +6,7 @@
 -- Author      : Mark Norton <mark.norton@viavisolutions.com>
 -- Company     : Self
 -- Created     : Fri Apr  5 08:19:13 2019
--- Last update : Fri Apr  5 14:20:41 2019
+-- Last update : Fri Apr  5 14:30:06 2019
 -- Platform    : Generic
 -- Standard    : VHDL-2008
 --------------------------------------------------------------------------------
@@ -133,7 +133,6 @@ package body signals_pkg is
 		variable i          : natural := 0;
 		variable start_time : real    := 0.0;
 		variable rval : real := 0.0;
-		variable L : line;
 	begin
 		ARRAY_SCAN : loop
 			if (func_array(i).pw_function = END_POINT) then

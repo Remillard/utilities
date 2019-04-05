@@ -6,7 +6,7 @@
 -- Author      : Mark Norton <mark.norton@viavisolutions.com>
 -- Company     : Self
 -- Created     : Fri Apr  5 14:17:05 2019
--- Last update : Fri Apr  5 14:26:19 2019
+-- Last update : Fri Apr  5 15:48:05 2019
 -- Platform    : Generic
 -- Standard    : VHDL-2008
 --------------------------------------------------------------------------------
@@ -92,6 +92,21 @@ package signal_defs_pkg is
 			12 => (C_MODE_C_P4_FALL + 20.0e-6, VALUE, (0.1, 0.0, 0.0, 0.0, 0.0, 0.0)),
 			13 => (0.0, END_POINT, NULL_PARAMS)
 		);
+
+	----------------------------------------------------------------------------
+	-- DME X Pattern
+	----------------------------------------------------------------------------
+	constant C_DME_X_P1_CENTER : real := 20.0e-6;
+	constant C_DME_X_P2_CENTER : real := 32.0e-6;
+	constant C_DME_SIGMA : real := 1.486;
+
+	constant C_DME_X_PATTERN : MULTI_FUNCTION_ARRAY :=
+		(
+			0 => (C_DME_X_P1_CENTER + 6.0e-6, GAUSSIAN, (1.0, C_DME_SIGMA, C_DME_X_P1_CENTER, 1.0e-6, 0.0, 0.0)),
+			1 => (C_DME_X_P2_CENTER + 12.0e-6, GAUSSIAN, (1.0, C_DME_SIGMA, C_DME_X_P2_CENTER, 1.0e-6, 0.0, 0.0)),
+			2 => (0.0, END_POINT, NULL_PARAMS)
+		);
+
 
 
 end package signal_defs_pkg;
