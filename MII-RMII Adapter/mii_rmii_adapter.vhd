@@ -6,7 +6,7 @@
 -- Author      : Mark Norton <mark.norton@viavisolutions.com>
 -- Company     : Self
 -- Created     : Fri Apr 19 09:00:54 2019
--- Last update : Fri Apr 19 15:37:56 2019
+-- Last update : Fri Apr 19 16:14:15 2019
 -- Platform    : Generic
 -- Standard    : VHDL-2008
 --------------------------------------------------------------------------------
@@ -19,22 +19,27 @@ use ieee.numeric_std.all;
 
 entity mii_rmii_adapter is
 	port (
+		clk_50mhz : in std_logic;
+		reset     : in std_logic;
 		------------------------------------------------------------------------
 		-- FPGA EMAC Side (MII format)
+		-- RX/TX clock shall be 25 MHz for 100 Mbps, 2.5 MHz for 10 Mbps
 		------------------------------------------------------------------------
-		mii_emac_clk_tx       : out std_logic;
-		mii_emac_txd          : in  std_logic_vector(4 downto 0);
-		mii_emac_txen         : in  std_logic;
-		mii_emac_txer         : in  std_logic;
-		mii_emac_rst_ckl_tx_n : in  std_logic;
-		mii_emac_clk_rx       : out std_logic;
-		mii_emac_rxd          : out std_logic_vector(4 downto 0);
-		mii_emac_rxdv         : out std_logic;
-		mii_emac_rxer         : out std_logic;
-		mii_emac_rst_clk_rx_n : in  std_logic;
+		mii_emac_clk_tx : out std_logic;
+		mii_emac_txd    : in  std_logic_vector(4 downto 0);
+		mii_emac_txen   : in  std_logic;
+		mii_emac_txer   : in  std_logic;
+
+		mii_emac_clk_rx : out std_logic;
+		mii_emac_rxdv   : out std_logic;
+		mii_emac_rxer   : out std_logic;
+		mii_emac_rxd    : out std_logic_vector(4 downto 0);
+
 		mii_emac_speed        : in  std_logic_vector(1 downto 0);
 		mii_emac_crs          : out std_logic;
 		mii_emac_col          : out std_logic;
+		mii_emac_rst_ckl_tx_n : in  std_logic;
+		mii_emac_rst_clk_rx_n : in  std_logic;
 		------------------------------------------------------------------------
 		-- PHY Side (RMII format)
 		------------------------------------------------------------------------
