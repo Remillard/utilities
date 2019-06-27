@@ -129,7 +129,7 @@ def main():
         "-s",
         "--scale",
         help="Full scale value.  Must be less than 2^(width-1)-1.  Default: 2^(width-1)-1",
-        type=int
+        type=int,
     )
     parser.add_argument(
         "-r",
@@ -152,7 +152,11 @@ def main():
     # fine, however if specified, must not be greater than the maximum
     # possible value.
     if args.scale is not None and args.scale > 2 ** (args.width - 1) - 1:
-        print("Argument Error: Full scale value must be less than or equal to the maximum possible.  A signed number at {} bits has a maximum scale value of {}.".format(args.width, 2**(args.width-1)-1))
+        print(
+            "Argument Error: Full scale value must be less than or equal to the maximum possible.  A signed number at {} bits has a maximum scale value of {}.".format(
+                args.width, 2 ** (args.width - 1) - 1
+            )
+        )
     else:
         # Construct filename
         if args.scale is None:
@@ -161,7 +165,13 @@ def main():
             scale_str = "scaled"
         depth = 2 ** args.depth
         filename = "{}_{}x{}_{}_{}_{}_lut.{}".format(
-            args.prefix, args.width, depth, scale_str, args.rotation, args.function, args.format
+            args.prefix,
+            args.width,
+            depth,
+            scale_str,
+            args.rotation,
+            args.function,
+            args.format,
         )
         print("Generating {}".format(filename))
 
