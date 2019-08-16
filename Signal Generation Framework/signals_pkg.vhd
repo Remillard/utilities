@@ -6,7 +6,7 @@
 -- Author      : Mark Norton <mark.norton@viavisolutions.com>
 -- Company     : Self
 -- Created     : Fri Apr  5 08:19:13 2019
--- Last update : Fri Apr  5 14:30:06 2019
+-- Last update : Mon Aug  5 12:53:47 2019
 -- Platform    : Generic
 -- Standard    : VHDL-2008
 --------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ package body signals_pkg is
 		-- Calculate the scaled up time value
 		scaled_time := (t - center) / tscale;
 		-- Calculate scaled gaussian shape
-		return amp * vscale * (1.0 / (math_sqrt_2 * math_sqrt_pi * sigma)) * math_e ** (-scaled_time**2 / (2.0 * sigma**2));
+		return amp * math_e ** (-scaled_time**2 / (2.0 * sigma**2));
 	end function gaussian;
 
 	----------------------------------------------------------------------------
