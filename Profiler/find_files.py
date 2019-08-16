@@ -221,11 +221,15 @@ class SVInstance:
     #    and pass that to the instantiation scanner.
     # 2. The scanner method will break the block on semicolons which
     #    ensures no more than one instantiation per subsection.
-    # 3. Words in each subsection will be scanned one at a time and checked
+    # 3. Will replace comments with spaces.
+    # 4. Will replace the interior of every outer parenthesis group with
+    #    spaces, including overwriting other parens.  Need to keep the outers
+    #    though.
+    # 5. Words in each subsection will be scanned one at a time and checked
     #    against the reserved word list.
-    # 4. If a non-match is found, the pattern will be applied to check
+    # 6. If a non-match is found, the pattern will be applied to check
     #    for an instantiation.
-    # 5. If the instantiation matches, we may extract the information and
+    # 7. If the instantiation matches, we may extract the information and
     #    continue to the next substring.
     SVLOG_RESERVED_LIST = ['alias', 'always', 'always_comb', 'always_ff',
     'always_latch', 'and', 'assert', 'assign', 'assume', 'automatic',
@@ -291,6 +295,11 @@ class SVInstance:
             for comment in re.finditer(cls.SVCOMMENT_P, string):
                 pad = ' '*len(comment.group())
                 string = string[:comment.start()]+pad+string[comment.end():]
+            # Stripping out interior of parens and replacing with spaces.
+            for index in range(0, len(string)):
+                if string[index] == '(':
+                    pass
+
             print("Comment-free version: '{}'".format(string))
             for word in re.finditer(cls.WORD_P, string):
                 print("Evaluating '{}'".format(word.group()))
