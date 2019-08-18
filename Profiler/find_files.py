@@ -29,7 +29,9 @@ class VHDLEntity:
         self.start = start
 
     def __str__(self):
-        return "{} @ {} in '{}'".format(self.name, self.start, os.path.join(self.root, self.filename))
+        return "{} @ {} in '{}'".format(
+            self.name, self.start, os.path.join(self.root, self.filename)
+        )
 
     # Generator functions ueed to populate the tree of entities
     @classmethod
@@ -64,8 +66,9 @@ class SVModule:
         self.end = end
 
     def __str__(self):
-        return "{} @ {}->{} {}".format(self.name, self.start, self.end, os.path.join(self.root, self.filename))
-
+        return "{} @ {}->{} {}".format(
+            self.name, self.start, self.end, os.path.join(self.root, self.filename)
+        )
 
     # Generator functions ueed to populate the tree of entities
     @classmethod
@@ -106,7 +109,9 @@ class VHDLComponent:
         self.start = start
 
     def __str__(self):
-        return "{} @ {} in '{}'".format(self.name, self.start, os.path.join(self.root, self.filename))
+        return "{} @ {} in '{}'".format(
+            self.name, self.start, os.path.join(self.root, self.filename)
+        )
 
     # Generator functions used to populate the tree.
     @classmethod
@@ -138,7 +143,9 @@ class VHDLArchitecture:
         self.end = end
 
     def __str__(self):
-        return "{} @ {}->{} in '{}'".format(self.name, self.start, self.end, os.path.join(self.root, self.filename))
+        return "{} @ {}->{} in '{}'".format(
+            self.name, self.start, self.end, os.path.join(self.root, self.filename)
+        )
 
     @classmethod
     def arch_scan(cls, root, file, buf):
@@ -152,8 +159,10 @@ class VHDLArchitecture:
             # Moving the end pattern here because it needs to be dynamically
             # updated with the name of the architecture, because otherwise
             # we'll match to other words.
-            end_architecture_p = r"\bend(?:\s+architecture)?(?:\s+{})?\s*;".format(match.group(2))
-            endmatch = re.search(end_architecture_p, buf[match.start():], re.I)
+            end_architecture_p = r"\bend(?:\s+architecture)?(?:\s+{})?\s*;".format(
+                match.group(2)
+            )
+            endmatch = re.search(end_architecture_p, buf[match.start() :], re.I)
             yield cls(
                 match.group(2),
                 match.group(3),
@@ -178,7 +187,16 @@ class VHDLInstance:
         IDENT_P, IDENT_P, IDENT_P
     )
 
-    def __init__(self, instance_name, instance_entity, calling_entity, calling_arch, root, filename, position):
+    def __init__(
+        self,
+        instance_name,
+        instance_entity,
+        calling_entity,
+        calling_arch,
+        root,
+        filename,
+        position,
+    ):
         self.instance_name = instance_name
         self.instance_entity = instance_entity
         self.calling_entity = calling_entity
@@ -188,7 +206,9 @@ class VHDLInstance:
         self.position = position
 
     def __str__(self):
-        return "{} @ {} in '{}'".format(self.instance_name, self.position, os.path.join(self.root, self.filename))
+        return "{} @ {} in '{}'".format(
+            self.instance_name, self.position, os.path.join(self.root, self.filename)
+        )
 
     @classmethod
     def instance_scan(cls, root, file, buf, offset, call_entity, call_arch):
@@ -205,7 +225,7 @@ class VHDLInstance:
                 call_arch,
                 root,
                 file,
-                match.start(1) + offset
+                match.start(1) + offset,
             )
 
 
@@ -214,6 +234,7 @@ class SVInstance:
     Class representing the information related to instantiations of block units
     in Verilog/SystemVerilog.
     """
+
     # Verilog Constructs.  There seems to be no simple way to detect a Verilog
     # instantiation purely by regular expression.  Here is an algorithmic
     # solution.
@@ -231,45 +252,235 @@ class SVInstance:
     #    for an instantiation.
     # 7. If the instantiation matches, we may extract the information and
     #    continue to the next substring.
-    SVLOG_RESERVED_LIST = ['alias', 'always', 'always_comb', 'always_ff',
-    'always_latch', 'and', 'assert', 'assign', 'assume', 'automatic',
-    'before', 'begin', 'bind', 'bins', 'binsof', 'bit', 'break', 'buf',
-    'bufif0', 'bufif1', 'byte', 'case', 'casex', 'casez', 'cell', 'chandle',
-    'class', 'clocking', 'cmos', 'config', 'const', 'constraint', 'context',
-    'continue', 'cover', 'covergroup', 'coverpoint', 'cross', 'deassign',
-    'default', 'defparam', 'design', 'disable', 'dist', 'do', 'edge', 'else',
-    'end', 'endcase', 'endclass', 'endclocking', 'endconfig', 'endfunciton',
-    'endgenerate', 'endgroup', 'endinterface', 'endmodule', 'endpackage',
-    'endprimitive', 'endprogram', 'endproperty', 'endspecify', 'endsequence',
-    'endtable', 'endtask', 'enum', 'event', 'expect', 'export', 'extends',
-    'extern', 'final', 'first_match', 'for', 'force', 'foreach', 'forever',
-    'fork', 'forkjoin', 'function', 'generate', 'genvar', 'highz0', 'highz1',
-    'if', 'iff', 'ifnone', 'ignore_bins', 'illegal_bins',  'import', 'incdir',
-    'include', 'initial', 'inout', 'input', 'inside', 'instance', 'int',
-    'integer', 'interface', 'intersect', 'join', 'join_any', 'join_none',
-    'large', 'liblist', 'library', 'local', 'localparam', 'logic', 'longint',
-    'macromodule', 'matches', 'medium', 'modport', 'module', 'nand', 'negedge',
-    'new', 'nmos', 'nor', 'noshowcancelled', 'not', 'notif0', 'notif1', 'null',
-    'or', 'output', 'package', 'packed', 'parameter', 'pmos', 'posedge',
-    'primitive', 'priority', 'program', 'property', 'protected', 'pull0',
-    'pull1', 'pulldown', 'pullup', 'pulsestyle_onevent', 'pulsestyle_ondetect',
-    'pure', 'rand', 'randc', 'randcase', 'randsequence', 'rcmos', 'real',
-    'realtime', 'ref', 'reg', 'release', 'repeat', 'return', 'rnmos' 'rpmos',
-    'rtran', 'rtranif0', 'rtranif1', 'scalared', 'sequence', 'shortint',
-    'shortreal', 'showcancelled', 'signed', 'small', 'solve', 'specify',
-    'specparam', 'static', 'string', 'strong0', 'strong1', 'struct',
-    'super', 'supply0', 'supply1', 'table', 'tagged', 'task', 'this',
-    'throughout', 'time', 'timeprecision', 'timeunit', 'tran', 'tranif0',
-    'tranif1', 'tri', 'tri0', 'tri1', 'triand', 'trior', 'trireg', 'type',
-    'typedef', 'union', 'unique', 'unsigned', 'use', 'uwire', 'var',
-    'vectored', 'virtual', 'void', 'wait', 'wait_order', 'wand', 'weak0',
-    'weak1', 'while', 'wildcard', 'wire', 'with', 'within', 'wor', 'xnor',
-    'xor']
+    SVLOG_RESERVED_LIST = [
+        "alias",
+        "always",
+        "always_comb",
+        "always_ff",
+        "always_latch",
+        "and",
+        "assert",
+        "assign",
+        "assume",
+        "automatic",
+        "before",
+        "begin",
+        "bind",
+        "bins",
+        "binsof",
+        "bit",
+        "break",
+        "buf",
+        "bufif0",
+        "bufif1",
+        "byte",
+        "case",
+        "casex",
+        "casez",
+        "cell",
+        "chandle",
+        "class",
+        "clocking",
+        "cmos",
+        "config",
+        "const",
+        "constraint",
+        "context",
+        "continue",
+        "cover",
+        "covergroup",
+        "coverpoint",
+        "cross",
+        "deassign",
+        "default",
+        "defparam",
+        "design",
+        "disable",
+        "dist",
+        "do",
+        "edge",
+        "else",
+        "end",
+        "endcase",
+        "endclass",
+        "endclocking",
+        "endconfig",
+        "endfunciton",
+        "endgenerate",
+        "endgroup",
+        "endinterface",
+        "endmodule",
+        "endpackage",
+        "endprimitive",
+        "endprogram",
+        "endproperty",
+        "endspecify",
+        "endsequence",
+        "endtable",
+        "endtask",
+        "enum",
+        "event",
+        "expect",
+        "export",
+        "extends",
+        "extern",
+        "final",
+        "first_match",
+        "for",
+        "force",
+        "foreach",
+        "forever",
+        "fork",
+        "forkjoin",
+        "function",
+        "generate",
+        "genvar",
+        "highz0",
+        "highz1",
+        "if",
+        "iff",
+        "ifnone",
+        "ignore_bins",
+        "illegal_bins",
+        "import",
+        "incdir",
+        "include",
+        "initial",
+        "inout",
+        "input",
+        "inside",
+        "instance",
+        "int",
+        "integer",
+        "interface",
+        "intersect",
+        "join",
+        "join_any",
+        "join_none",
+        "large",
+        "liblist",
+        "library",
+        "local",
+        "localparam",
+        "logic",
+        "longint",
+        "macromodule",
+        "matches",
+        "medium",
+        "modport",
+        "module",
+        "nand",
+        "negedge",
+        "new",
+        "nmos",
+        "nor",
+        "noshowcancelled",
+        "not",
+        "notif0",
+        "notif1",
+        "null",
+        "or",
+        "output",
+        "package",
+        "packed",
+        "parameter",
+        "pmos",
+        "posedge",
+        "primitive",
+        "priority",
+        "program",
+        "property",
+        "protected",
+        "pull0",
+        "pull1",
+        "pulldown",
+        "pullup",
+        "pulsestyle_onevent",
+        "pulsestyle_ondetect",
+        "pure",
+        "rand",
+        "randc",
+        "randcase",
+        "randsequence",
+        "rcmos",
+        "real",
+        "realtime",
+        "ref",
+        "reg",
+        "release",
+        "repeat",
+        "return",
+        "rnmos" "rpmos",
+        "rtran",
+        "rtranif0",
+        "rtranif1",
+        "scalared",
+        "sequence",
+        "shortint",
+        "shortreal",
+        "showcancelled",
+        "signed",
+        "small",
+        "solve",
+        "specify",
+        "specparam",
+        "static",
+        "string",
+        "strong0",
+        "strong1",
+        "struct",
+        "super",
+        "supply0",
+        "supply1",
+        "table",
+        "tagged",
+        "task",
+        "this",
+        "throughout",
+        "time",
+        "timeprecision",
+        "timeunit",
+        "tran",
+        "tranif0",
+        "tranif1",
+        "tri",
+        "tri0",
+        "tri1",
+        "triand",
+        "trior",
+        "trireg",
+        "type",
+        "typedef",
+        "union",
+        "unique",
+        "unsigned",
+        "use",
+        "uwire",
+        "var",
+        "vectored",
+        "virtual",
+        "void",
+        "wait",
+        "wait_order",
+        "wand",
+        "weak0",
+        "weak1",
+        "while",
+        "wildcard",
+        "wire",
+        "with",
+        "within",
+        "wor",
+        "xnor",
+        "xor",
+    ]
     WORD_P = r"\b(\w+)\b"
     SVCOMMENT_P = r"//.*\n"
     VLOG_INSTANCE_P = r"\b(\w+)\b(?:\s*?#\((?:\([\w\W]*?\)|[\s\w\W])*?\))?\s*?\b(\w+)\b\s*?(?:\s*?\((?:\([\w\W]*?\)|[\s\w\W])*?\));"
 
-    def __init__(self, instance_name, instance_module, calling_module, root, filename, position):
+    def __init__(
+        self, instance_name, instance_module, calling_module, root, filename, position
+    ):
         self.instance_name = instance_name
         self.instance_module = instance_module
         self.calling_module = calling_module
@@ -278,33 +489,35 @@ class SVInstance:
         self.position = position
 
     def __str__(self):
-        return "{} @ {} '{}'".format(self.instance_name, self.position, os.path.join(self.root, self.filename))
+        return "{} @ {} '{}'".format(
+            self.instance_name, self.position, os.path.join(self.root, self.filename)
+        )
 
     @classmethod
     def instance_scan(cls, root, file, buf, offset, call_module):
         """Iterates over a buffer and yields Instance objects"""
         # See notes above on methodology.
-        substrings = buf.split(';')
+        substrings = buf.split(";")
         sub_offset = 0
         for string in substrings:
             # Tacking a semicolon back on to help the match
-            string += ';'
+            string += ";"
             print("Scanning string chunk: '{}'".format(string))
             # Stripping comments and replacing with spaces in order to preserve
             # locational information
             for comment in re.finditer(cls.SVCOMMENT_P, string):
-                pad = ' '*len(comment.group())
-                string = string[:comment.start()]+pad+string[comment.end():]
+                pad = " " * len(comment.group())
+                string = string[: comment.start()] + pad + string[comment.end() :]
             # Stripping out interior of parens and replacing with spaces.
             for index in range(0, len(string)):
-                if string[index] == '(':
+                if string[index] == "(":
                     pass
 
             print("Comment-free version: '{}'".format(string))
             for word in re.finditer(cls.WORD_P, string):
                 print("Evaluating '{}'".format(word.group()))
                 if word.group(1) not in cls.SVLOG_RESERVED_LIST:
-                    s = re.search(cls.VLOG_INSTANCE_P, string[word.start(1):])
+                    s = re.search(cls.VLOG_INSTANCE_P, string[word.start(1) :])
                     if s:
                         yield cls(
                             s.group(2),
@@ -312,7 +525,7 @@ class SVInstance:
                             call_module,
                             root,
                             file,
-                            offset + sub_offset + s.start(1)
+                            offset + sub_offset + s.start(1),
                         )
                         break
             # Length of the substring, plus the semicolon that was removed
@@ -330,6 +543,29 @@ class EntityTreeItem:
         self.instances = []
         self.instance_used = []
 
+
+def blank_string(str, start, end):
+    """replaces the text between the start and end with spaces"""
+    return str[:start] + " " * (end - start) + str[end:]
+
+
+def paren_extract(str):
+    """Returns start/end points for text inside parenthesis"""
+    pcount = 0
+    start = end = 0
+    for index in range(len(str)):
+        if str[index] == "(":
+            if pcount == 0:
+                # We'll start at the next character
+                start = index + 1
+            pcount += 1
+        elif str[index] == ")":
+            pcount -= 1
+            if pcount == 0:
+                end = index
+                yield start, end
+
+
 start = timer()
 entity_tree = {}
 
@@ -342,7 +578,11 @@ for root, dirs, files in os.walk("."):
             # Separate VHDL and Verilog paths here once more since the two
             # are handled differently.
             if file.lower().endswith(".vhd"):
-                print("[{:13.6f}] VHDL Processing {}".format(timer()-start, os.path.join(root, file)))
+                print(
+                    "[{:13.6f}] VHDL Processing {}".format(
+                        timer() - start, os.path.join(root, file)
+                    )
+                )
                 try:
                     with open(os.path.join(root, file)) as f_in:
                         buf = f_in.read()
@@ -359,13 +599,23 @@ for root, dirs, files in os.walk("."):
                             if arch.entity not in entity_tree:
                                 entity_tree[arch.entity] = EntityTreeItem()
                             entity_tree[arch.entity].architectures.append(arch)
-                            sub_buf = buf[arch.start:arch.end]
+                            sub_buf = buf[arch.start : arch.end]
                             print("Processing {} region".format(arch.name))
-                            for instance in VHDLInstance.instance_scan(root, file, sub_buf, arch.start, arch.entity, arch.name):
-                                print("Found instance of {} named {}".format(instance.instance_entity, instance.instance_name))
+                            for instance in VHDLInstance.instance_scan(
+                                root, file, sub_buf, arch.start, arch.entity, arch.name
+                            ):
+                                print(
+                                    "Found instance of {} named {}".format(
+                                        instance.instance_entity, instance.instance_name
+                                    )
+                                )
                                 if instance.instance_entity not in entity_tree:
-                                    entity_tree[instance.instance_entity] = EntityTreeItem()
-                                entity_tree[instance.instance_entity].instances.append(instance)
+                                    entity_tree[
+                                        instance.instance_entity
+                                    ] = EntityTreeItem()
+                                entity_tree[instance.instance_entity].instances.append(
+                                    instance
+                                )
                                 entity_tree[arch.entity].instance_used.append(instance)
                         # Components could be linked to architectures, but
                         # they may also be declared in packages so for now will
@@ -379,7 +629,11 @@ for root, dirs, files in os.walk("."):
                     # File is likely obfuscated binary
                     pass
             elif file.lower().endswith(".v") or file.lower().endswith(".sv"):
-                print("[{:13.6f}] Verilog Processing {}".format(timer()-start, os.path.join(root, file)))
+                print(
+                    "[{:13.6f}] Verilog Processing {}".format(
+                        timer() - start, os.path.join(root, file)
+                    )
+                )
                 try:
                     with open(os.path.join(root, file)) as f_in:
                         buf = f_in.read()
@@ -390,13 +644,23 @@ for root, dirs, files in os.walk("."):
                             if module.name not in entity_tree:
                                 entity_tree[module.name] = EntityTreeItem()
                             entity_tree[module.name].entities.append(module)
-                            sub_buf = buf[module.start:module.end]
+                            sub_buf = buf[module.start : module.end]
                             print("Processing {} region".format(module.name))
-                            for instance in SVInstance.instance_scan(root, file, sub_buf, module.start, module.name):
-                                print("Found instance of {} named {}".format(instance.instance_module, instance.instance_name))
+                            for instance in SVInstance.instance_scan(
+                                root, file, sub_buf, module.start, module.name
+                            ):
+                                print(
+                                    "Found instance of {} named {}".format(
+                                        instance.instance_module, instance.instance_name
+                                    )
+                                )
                                 if instance.instance_module not in entity_tree:
-                                    entity_tree[instance.instance_module] = EntityTreeItem()
-                                entity_tree[instance.instance_module].instances.append(instance)
+                                    entity_tree[
+                                        instance.instance_module
+                                    ] = EntityTreeItem()
+                                entity_tree[instance.instance_module].instances.append(
+                                    instance
+                                )
                                 entity_tree[module.name].instance_used.append(instance)
                         print("")
                 except UnicodeDecodeError:
