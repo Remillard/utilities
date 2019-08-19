@@ -5,9 +5,41 @@ import re
 import os
 from collections import defaultdict
 from timeit import default_timer as timer
-
+start = timer()
+DEBUG = False
 # Global pattern for valid HDL names.
 IDENT_P = r"[a-zA-Z](?:[a-zA-Z0-9]|_(?!_))*[a-zA-Z0-9]*"
+
+# Global methods for buffer manipulation
+def blank_string(str, start, end, full=True):
+    """replaces the text between the start and end with spaces."""
+    return str[:start] + " " * (end - start) + str[end:]
+
+
+def enclosure_extract(str, bstr="(", estr=")"):
+    """Returns start/end points for text inside parentheses,
+    braces, brackets, etc.  The bstr parameter defines the
+    starting symbol and the estr defines the end symbol."""
+    pcount = 0
+    start = end = 0
+    for index in range(len(str)):
+        if str[index] == bstr:
+            if pcount == 0:
+                # We'll start at the next character
+                start = index + 1
+            pcount += 1
+        elif str[index] == estr:
+            pcount -= 1
+            if pcount == 0:
+                end = index
+                yield start, end
+
+def logstr(string, filter=True):
+    """Prints a timestamped string object."""
+    if filter:
+        print("[{:13.6f}] {}".format(timer()-start, string))
+    else:
+        pass
 
 
 class VHDLEntity:
@@ -29,7 +61,7 @@ class VHDLEntity:
         self.start = start
 
     def __str__(self):
-        return "{} @ {} in '{}'".format(
+        return "{} @ {} {}".format(
             self.name, self.start, os.path.join(self.root, self.filename)
         )
 
@@ -240,12 +272,13 @@ class SVInstance:
     # solution.
     # 1. The module finder will chunk out a block defined by module/endmodule
     #    and pass that to the instantiation scanner.
+    # 2. Will replace comments with spaces.  Doing this once for the block
+    # 3. Will replace the interior of every outer parenthesis group with
+    #    spaces, including overwriting other parens.  Need to keep the outers
+    #    though.  Doing this once for the block.  This also neatly gets rid
+    #    of inline attributes whose semicolons screw things up.
     # 2. The scanner method will break the block on semicolons which
     #    ensures no more than one instantiation per subsection.
-    # 3. Will replace comments with spaces.
-    # 4. Will replace the interior of every outer parenthesis group with
-    #    spaces, including overwriting other parens.  Need to keep the outers
-    #    though.
     # 5. Words in each subsection will be scanned one at a time and checked
     #    against the reserved word list.
     # 6. If a non-match is found, the pattern will be applied to check
@@ -477,7 +510,10 @@ class SVInstance:
     ]
     WORD_P = r"\b(\w+)\b"
     SVCOMMENT_P = r"//.*\n"
-    VLOG_INSTANCE_P = r"\b(\w+)\b(?:\s*?#\((?:\([\w\W]*?\)|[\s\w\W])*?\))?\s*?\b(\w+)\b\s*?(?:\s*?\((?:\([\w\W]*?\)|[\s\w\W])*?\));"
+    SVINLINEATTRIB_P = r"\(\*.*?\*\)"
+    #VLOG_INSTANCE_P = r"\b(\w+)\b(?:\s*?#\((?:\([\w\W]*?\)|[\s\w\W])*?\))?\s*?\b(\w+)\b\s*?(?:\s*?\((?:\([\w\W]*?\)|[\s\w\W])*?\));"
+    # Simplified version if we don't have to worry about nested parens
+    VLOG_INSTANCE_P = r"(\w+)(?:\s*#\s*\(\s*\))?\s*\b(\w+)\b\s*\(\s*\);"
 
     def __init__(
         self, instance_name, instance_module, calling_module, root, filename, position
@@ -498,26 +534,24 @@ class SVInstance:
     def instance_scan(cls, root, file, buf, offset, call_module):
         """Iterates over a buffer and yields Instance objects"""
         # See notes above on methodology.
+        logstr("Removing comments and enclosure interiors.", DEBUG)
+        for comment in re.finditer(cls.SVCOMMENT_P, buf):
+            buf = blank_string(buf, comment.start(), comment.end())
+        for pstart, pend in enclosure_extract(buf):
+            buf = blank_string(buf, pstart, pend)
+        for pstart, pend in enclosure_extract(buf, "{", "}"):
+            buf = blank_string(buf, pstart, pend)
         substrings = buf.split(";")
         sub_offset = 0
         for string in substrings:
             # Tacking a semicolon back on to help the match
             string += ";"
-            print("Scanning string chunk: '{}'".format(string))
-            # Stripping comments and replacing with spaces in order to preserve
-            # locational information
-            for comment in re.finditer(cls.SVCOMMENT_P, string):
-                pad = " " * len(comment.group())
-                string = string[: comment.start()] + pad + string[comment.end() :]
-            # Stripping out interior of parens and replacing with spaces.
-            for index in range(0, len(string)):
-                if string[index] == "(":
-                    pass
-
-            print("Comment-free version: '{}'".format(string))
+            # Scanning for words to filter out keywords.
+            logstr("Scanning string chunk: '{}'".format(string), DEBUG)
             for word in re.finditer(cls.WORD_P, string):
-                print("Evaluating '{}'".format(word.group()))
+                logstr("Checking word '{}'...".format(word.group(1)), DEBUG)
                 if word.group(1) not in cls.SVLOG_RESERVED_LIST:
+                    logstr("Checking instance pattern.", DEBUG)
                     s = re.search(cls.VLOG_INSTANCE_P, string[word.start(1) :])
                     if s:
                         yield cls(
@@ -545,31 +579,8 @@ class EntityTreeItem:
         self.instance_used = []
 
 
-def blank_string(str, start, end):
-    """replaces the text between the start and end with spaces"""
-    return str[:start] + " " * (end - start) + str[end:]
-
-
-def paren_extract(str):
-    """Returns start/end points for text inside parenthesis"""
-    pcount = 0
-    start = end = 0
-    for index in range(len(str)):
-        if str[index] == "(":
-            if pcount == 0:
-                # We'll start at the next character
-                start = index + 1
-            pcount += 1
-        elif str[index] == ")":
-            pcount -= 1
-            if pcount == 0:
-                end = index
-                yield start, end
-
-
-start = timer()
 entity_tree = {}
-
+logstr("Starting file scan.", True)
 for root, dirs, files in os.walk("."):
     for file in files:
         # Filter out files.  We don't want instantiation template files (_inst)
@@ -579,16 +590,12 @@ for root, dirs, files in os.walk("."):
             # Separate VHDL and Verilog paths here once more since the two
             # are handled differently.
             if file.lower().endswith(".vhd"):
-                print(
-                    "[{:13.6f}] VHDL Processing {}".format(
-                        timer() - start, os.path.join(root, file)
-                    )
-                )
+                logstr("VHDL Processing {}".format(os.path.join(root, file)), DEBUG)
                 try:
                     with open(os.path.join(root, file)) as f_in:
                         buf = f_in.read()
                         for entity in VHDLEntity.entity_scan(root, file, buf):
-                            print("Found {}".format(entity.name))
+                            logstr("Found {}".format(entity.name), DEBUG)
                             if entity.name not in entity_tree:
                                 entity_tree[entity.name] = EntityTreeItem()
                             entity_tree[entity.name].entities.append(entity)
@@ -596,19 +603,19 @@ for root, dirs, files in os.walk("."):
                         # to ensure that instances are linked to the correct
                         # architecture.
                         for arch in VHDLArchitecture.arch_scan(root, file, buf):
-                            print("Found {} of {}".format(arch.name, arch.entity))
+                            logstr("Found {} of {}".format(arch.name, arch.entity), DEBUG)
                             if arch.entity not in entity_tree:
                                 entity_tree[arch.entity] = EntityTreeItem()
                             entity_tree[arch.entity].architectures.append(arch)
                             sub_buf = buf[arch.start : arch.end]
-                            print("Processing {} region".format(arch.name))
+                            logstr("Processing {} region".format(arch.name), DEBUG)
                             for instance in VHDLInstance.instance_scan(
                                 root, file, sub_buf, arch.start, arch.entity, arch.name
                             ):
-                                print(
+                                logstr(
                                     "Found instance of {} named {}".format(
                                         instance.instance_entity, instance.instance_name
-                                    )
+                                    ), DEBUG
                                 )
                                 if instance.instance_entity not in entity_tree:
                                     entity_tree[
@@ -625,36 +632,28 @@ for root, dirs, files in os.walk("."):
                             if component.name not in entity_tree:
                                 entity_tree[component.name] = EntityTreeItem()
                             entity_tree[component.name].components.append(component)
-                        print("")
+                        logstr("", DEBUG)
                 except UnicodeDecodeError:
                     # File is likely obfuscated binary
                     pass
             elif file.lower().endswith(".v") or file.lower().endswith(".sv"):
-                print(
-                    "[{:13.6f}] Verilog Processing {}".format(
-                        timer() - start, os.path.join(root, file)
-                    )
-                )
+                logstr("Verilog Processing {}".format(os.path.join(root, file)), DEBUG)
                 try:
                     with open(os.path.join(root, file)) as f_in:
                         buf = f_in.read()
                         # Modules and instance scanning are linked as well
                         # since a buffer subset is used to scan for instances.
                         for module in SVModule.module_scan(root, file, buf):
-                            print("\nFound module {}".format(module.name))
+                            logstr("Found module {}".format(module.name), DEBUG)
                             if module.name not in entity_tree:
                                 entity_tree[module.name] = EntityTreeItem()
                             entity_tree[module.name].entities.append(module)
                             sub_buf = buf[module.start : module.end]
-                            print("Processing {} region".format(module.name))
+                            logstr("Processing {} region".format(module.name), DEBUG)
                             for instance in SVInstance.instance_scan(
                                 root, file, sub_buf, module.start, module.name
                             ):
-                                print(
-                                    "Found instance of {} named {}".format(
-                                        instance.instance_module, instance.instance_name
-                                    )
-                                )
+                                logstr("Found instance of {} named {}".format(instance.instance_module, instance.instance_name ), DEBUG)
                                 if instance.instance_module not in entity_tree:
                                     entity_tree[
                                         instance.instance_module
@@ -663,27 +662,42 @@ for root, dirs, files in os.walk("."):
                                     instance
                                 )
                                 entity_tree[module.name].instance_used.append(instance)
-                        print("")
+                        logstr("", DEBUG)
                 except UnicodeDecodeError:
                     # File is likely obfuscated binary
                     pass
 
+logstr("Completed file scan.\n", True)
 for name in sorted(entity_tree):
-    print("Entity {}:".format(name))
-    print("=========================")
-    print("Declarations:")
-    for entity in entity_tree[name].entities:
-        print(entity)
-    print("Architectures:")
-    for arch in entity_tree[name].architectures:
-        print(arch)
-    print("Component Declarations:")
-    for component in entity_tree[name].components:
-        print(component)
-    print("Where Used As Instance:")
+    topstr = ""
+    if not entity_tree[name].instances:
+        topstr = "(top)"
+    print("[+] {} {}".format(name, topstr))
+    if entity_tree[name].architectures:
+        print("  Architectures:")
+        for arch in entity_tree[name].architectures:
+            print("  {{+}} {}".format(arch.name))
+        print("    Subcomponent hierarchy:")
+        for instance in entity_tree[name].instance_used:
+            if isinstance(instance, VHDLInstance):
+                line = "    |-> {}: {} ".format(instance.instance_name, instance.instance_entity)
+                for arch in entity_tree[instance.instance_entity].architectures:
+                    line = line + " ({})".format(arch.name)
+                print(line)
+            elif isinstance(instance, SVInstance):
+                print("    |-> {}: {}".format(instance.instance_name, instance.instance_module))
+            else:
+                pass
+    print("  Instantiated as:")
     for instance in entity_tree[name].instances:
-        print(instance)
-    print("Instances Contained:")
-    for instance in entity_tree[name].instance_used:
-        print(instance)
-    print("")
+        if isinstance(instance, VHDLInstance):
+            line = "  > {} in {}".format(instance.instance_name, instance.calling_entity)
+            for arch in entity_tree[instance.calling_entity].architectures:
+                line = line + " ({})".format(arch.name)
+            print(line)
+        elif isinstance(instance, SVInstance):
+            print("  > {} in {}".format(instance.instance_name, instance.calling_module))
+        else:
+            pass
+
+
