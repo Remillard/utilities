@@ -2,10 +2,10 @@
 # system build package.
 proc call_python {} {
 	set output [exec python ../bin/update_build_time.py -o ../src/system_build_info_pkg.vhd]
-	puts $output
+	post_message $output
 }
 post_message "Executing run_update_build_time.tcl script..."
-post_message "=================================================================="
+post_message "================================================================="
 post_message "Running system build update Python program"
 call_python
-post_message "=================================================================="
+post_message "================================================================="

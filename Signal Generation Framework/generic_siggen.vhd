@@ -6,7 +6,7 @@
 -- Author      : Mark Norton <mark.norton@viavisolutions.com>
 -- Company     : Self
 -- Created     : Thu Apr  4 13:13:52 2019
--- Last update : Fri Apr  5 14:48:58 2019
+-- Last update : Tue Nov 12 09:03:17 2019
 -- Platform    : Generic
 -- Standard    : VHDL-2008
 --------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ architecture behavioral of generic_siggen is
 	----------------------------------------------------------------------------
 	-- CW signals and constants
 	constant C_CW_FREQ   : real := 120.0e6; -- Hz
-	constant C_CW_AMP    : real := 1.0;
+	constant C_CW_AMP    : real := 0.99;
 	constant C_CW_OFFSET : real := 0.0;
 
 	signal cw  : real := 0.0;
@@ -105,8 +105,8 @@ begin
 	cw <= sinusoid(C_CW_AMP, C_CW_FREQ, 0.0, t);
 
 	-- Modulation signal generation
-	--m <= piecewise(C_MODE_A_PATTERN, t);
+	m <= piecewise(C_MODE_A_PATTERN, t);
 	--m <= piecewise(C_MODE_C_PATTERN, t);
-	m <= piecewise(C_DME_X_PATTERN, t);
+	--m <= piecewise(C_DME_X_PATTERN, t);
 
 end architecture behavioral;

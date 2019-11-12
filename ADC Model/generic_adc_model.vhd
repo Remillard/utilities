@@ -6,7 +6,7 @@
 -- Author      : Mark Norton <remillard@gmail.com>
 -- Company     : Self
 -- Created     : Thu Apr  4 08:46:46 2019
--- Last update : Thu Apr  4 11:34:01 2019
+-- Last update : Tue Nov 12 08:15:33 2019
 -- Platform    : Behavioral Model
 -- Standard    : VHDL-2008
 -------------------------------------------------------------------------------
@@ -43,7 +43,6 @@ entity generic_adc_model is
 		BIPOLAR        : boolean := true;
 		VOLTAGE_SCALE  : real    := 5.0;
 		VOLTAGE_OFFSET : real    := 0.0;
-		SAMPLE_FREQ    : integer := 100;
 		TWOS_COMP      : boolean := true
 	);
 	port (

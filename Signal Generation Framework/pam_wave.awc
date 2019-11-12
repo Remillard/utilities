@@ -2,7 +2,7 @@
 <document type="awc" version="2">
 	<waveform>
 		<datasets>
-			<dataset alias="sim" file="../sim/dataset.asdb" id="0" uniqueid="1554493042"/>
+			<dataset alias="sim" file="../sim/dataset.asdb" id="0" uniqueid="1573571022"/>
 		</datasets>
 		<browser type="events"/>
 		<view active="true">
@@ -11,18 +11,33 @@
 				<active name="Default cursor" time="0fs+0"/>
 			</cursors>
 			<signalspart>
-				<height value="100"/>
+				<signal name="/rx_dsp_top_tb/clk_160" aliasid="0"/>
+				<signal name="/rx_dsp_top_tb/reset" aliasid="0"/>
+				<height value="200"/>
 				<viewmode value="analog"/>
-				<wave_coloring value="1"/>
 				<analogbottom value="-1"/>
 				<analogtop value="1"/>
 				<analogtoolbarvisible value="0"/>
-				<analogantialiasing value="1"/>
-				<signal name="/generic_siggen/cw" aliasid="0"/>
-				<analogbottom value="0"/>
-				<signal name="/generic_siggen/m" aliasid="0"/>
-				<analogbottom value="-1"/>
-				<signal name="/generic_siggen/signal_out" aliasid="0"/>
+				<signal name="/rx_dsp_top_tb/siggen_out" aliasid="0"/>
+				<integral_representation value="Decimal2Complement"/>
+				<wave_coloring value="1"/>
+				<analogbottom value=""/>
+				<analogtop value=""/>
+				<signal name="/rx_dsp_top_tb/adc_data" aliasid="0"/>
+				<height value=""/>
+				<integral_representation value=""/>
+				<viewmode value=""/>
+				<wave_coloring value=""/>
+				<analogtoolbarvisible value=""/>
+				<signal name="/rx_dsp_top_tb/overrange" aliasid="0"/>
+				<height value="200"/>
+				<integral_representation value="DecimalUnsigned"/>
+				<viewmode value="analog"/>
+				<analogtoolbarvisible value="0"/>
+				<signal name="/rx_dsp_top_tb/mag_data" aliasid="0"/>
+				<integral_representation value="Decimal2Complement"/>
+				<wave_coloring value="1"/>
+				<signal name="/rx_dsp_top_tb/phase_data" aliasid="0"/>
 			</signalspart>
 			<firstvisiblesignal number="0"/>
 			<timesynchronization value="1"/>
@@ -30,14 +45,14 @@
 			<time beginvisible="0fs" endvisible="0fs"/>
 		</view>
 		<bookmarks/>
-		<time beginvisible="47568ns" endvisible="50128ns"/>
+		<time beginvisible="15307750ps" endvisible="24779750ps"/>
 		<timeunit name="auto"/>
 		<grid type="autogrid"/>
 		<cursors>
-			<cursor name="Default cursor" id="-1" time="20000500ps" lock="0" tip="1">
-				<cursor name="Cursor 1" id="-1" time="50us+0" lock="0" tip="1"/>
+			<cursor name="Default cursor" id="-1" time="20043750ps" lock="0" tip="1">
+				<cursor name="Cursor 1" id="-1" time="16547ns" lock="0" tip="1"/>
 			</cursor>
-			<active name="Cursor 1" time="50us+0"/>
+			<active name="Cursor 1" time="16547ns"/>
 		</cursors>
 		<hierarchy_depth value="0"/>
 	</waveform>
