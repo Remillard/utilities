@@ -78,6 +78,10 @@ def generate_mem(args, filename):
         func = math.cos
 
     lut_file = open(filename, "w")
+    lut_file.write("// Verilog Hex Memory Format\n")
+    lut_file.write("// DEPTH={}\n".format(depth))
+    lut_file.write("// WIDTH={}\n".format(args.width))
+    lut_file.write("// DATA_RADIX = HEX\n")
 
     for idx in range(0, depth):
         line = ""
@@ -142,7 +146,7 @@ def main():
         "-fmt",
         "--format",
         choices=["mif", "mem"],
-        help="Sets the output file format.  Default: mif",
+        help="Sets the output file format.  MIF is the Intel Memory Initialization File format (similar to MTI as well).  MEM is the Verilog Hex Memory format.  Default: mif",
         default="mif",
     )
     # TODO: Add other RADIX arguments someday instead of just HEX.
@@ -162,9 +166,9 @@ def main():
         if args.scale is None:
             scale_str = ""
         else:
-            scale_str = "scaled"
+            scale_str = "scaled_"
         depth = 2 ** args.depth
-        filename = "{}_{}x{}_{}_{}_{}_lut.{}".format(
+        filename = "{}_{}x{}_{}{}_{}_lut.{}".format(
             args.prefix,
             args.width,
             depth,
